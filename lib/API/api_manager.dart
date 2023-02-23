@@ -60,7 +60,7 @@ class APIManager {
     return prayerTimes;
   }
 
-  Future<MapEntry> getNextPrayer(city, country) async {
+  Future<MapEntry<String, DateTime>> getNextPrayer(city, country) async {
     var data = await getPrayerTimesByCity(city, country);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -92,10 +92,55 @@ class APIManager {
           var entry = returnList.entries.first;
           return entry;
         } catch (e) {
-          return const MapEntry("NONE", "NONE");
+          return MapEntry("NONE", DateTime.now());
         }
       }
     }
-    return const MapEntry("NONE", "NONE");
+    return MapEntry("NONE", DateTime.now());
+  }
+
+  Future<MapEntry<String, DateTime>> getNextPrayerTomorrow(
+      city, country) async {
+    var data = await getPrayerTimesByCity(city, country);
+    final now = DateTime.now();
+
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    if (tomorrow.month > now.month) {
+      data = await getPrayerTimesByCityAndDate(
+          city, country, now.year, now.month + 1);
+    }
+    for (var i = 0; i < data.length; i++) {
+      var dayMonthYear =
+          DateFormat('dd-MM-yyyy').parse(data[i].date['gregorian']['date']);
+      var finalFormatted =
+          DateFormat('yyyy-MM-dd').parse(dayMonthYear.toString());
+      final date = DateTime.parse(finalFormatted.toString());
+      if (date == tomorrow) {
+        final timings = data[i].timings;
+        var timeFormat = DateFormat('HH:mm');
+        var listOfTimes = <String, DateTime>{};
+        timings.forEach((key, value) {
+          var time = timeFormat.parse(value);
+          var finalTime = DateTime(date.year, date.month, date.day, time.hour,
+              time.minute, time.second);
+          listOfTimes.addEntries([MapEntry(key, finalTime)]);
+        });
+        var returnList = <String, DateTime>{};
+        listOfTimes.forEach((key, value) {
+          if (value.isAfter(now)) {
+            var nextPrayer = key;
+            var nextPrayerTime = value;
+            returnList.addEntries([MapEntry(nextPrayer, nextPrayerTime)]);
+          }
+        });
+        try {
+          var entry = returnList.entries.first;
+          return entry;
+        } catch (e) {
+          return MapEntry("NONE", DateTime.now());
+        }
+      }
+    }
+    return MapEntry("NONE", DateTime.now());
   }
 }
