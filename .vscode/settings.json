@@ -3,6 +3,10 @@
         "Dhikr",
         "Firstthird",
         "Lastthird",
-        "Saihat"
-    ]
+        "placemark",
+        "placemarks",
+        "Saihat",
+        "unfocus"
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:prayer_app/screens/home_page.dart';
+import 'package:prayer_app/screens/search_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,7 +14,7 @@ class _MainScreenState extends State<MainScreen> {
   var myIndex = 0;
   List<Widget> myPages = const [
     HomePage(),
-    Text('Search', style: TextStyle(fontSize: 40)),
+    SearchPage(),
     Text('Favorite', style: TextStyle(fontSize: 40)),
     Text('Dhikr', style: TextStyle(fontSize: 40)),
   ];
