@@ -1,7 +1,7 @@
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:prayer_app/API/api_manager.dart';
+import 'package:prayer_app/API/firestore_manager.dart';
 import 'package:prayer_app/models/prayer_times.dart';
 import 'package:prayer_app/screens/widgets/prayer_calendar.dart';
 
@@ -20,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   late int differenceInSeconds;
   String? city;
   String? country;
+  bool isFavorite = false;
 
   void getCalendar() async {
     setState(() {
@@ -37,6 +38,15 @@ class _HomePageState extends State<HomePage> {
         nextPrayer.key == "Lastthird" ||
         nextPrayer.key == "Midnight") {
       nextPrayer = await apiManager.getNextPrayerTomorrow(city, country);
+    }
+
+    var favoritesList = await FireStoreManager.getFavorites();
+    for (Map element in favoritesList) {
+      if (element['city'] == city && element['country'] == country) {
+        setState(() {
+          isFavorite = true;
+        });
+      }
     }
     setState(() {
       isLoading = false;
@@ -170,10 +180,14 @@ class _HomePageState extends State<HomePage> {
                     controller: _controller,
                     city: city,
                     country: country,
+                    isFavorite: isFavorite,
                   ),
                 )
               : PrayerCalendar(
-                  prayerTimes: prayerTimes, controller: _controller),
+                  prayerTimes: prayerTimes,
+                  controller: _controller,
+                  isFavorite: isFavorite,
+                ),
     );
   }
 }

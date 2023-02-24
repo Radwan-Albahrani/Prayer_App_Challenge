@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prayer_app/API/firestore_manager.dart';
 import 'package:prayer_app/screens/widgets/prayer_times.dart';
 
 import '../../models/prayer_times.dart';
@@ -8,12 +9,14 @@ class PrayerCalendar extends StatefulWidget {
   final ScrollController? controller;
   final String? city;
   final String? country;
+  final bool isFavorite;
   const PrayerCalendar(
       {super.key,
       required this.prayerTimes,
       this.controller,
       this.city,
-      this.country});
+      this.country,
+      this.isFavorite = false});
 
   @override
   State<PrayerCalendar> createState() => _PrayerCalendarState();
@@ -21,6 +24,14 @@ class PrayerCalendar extends StatefulWidget {
 
 class _PrayerCalendarState extends State<PrayerCalendar> {
   var selected = DateTime.now().day - 1;
+  bool isFavorite = false;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    isFavorite = widget.isFavorite;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -28,12 +39,35 @@ class _PrayerCalendarState extends State<PrayerCalendar> {
         widget.city != null && widget.country != null
             ? Container(
                 margin: const EdgeInsets.only(top: 20, bottom: 10),
-                child: Text(
-                  "${widget.city}, ${widget.country}",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        if (isFavorite) {
+                          await FireStoreManager.removeFavorite(
+                              widget.city.toString(),
+                              widget.country.toString());
+                        } else {
+                          await FireStoreManager.addFavorite(
+                              widget.city!, widget.country!);
+                        }
+
+                        setState(() {
+                          isFavorite = !isFavorite;
+                        });
+                      },
+                      icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border),
+                    ),
+                    // Favorite button
+                    Text(
+                      "${widget.city}, ${widget.country}",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               )
             : Container(),
