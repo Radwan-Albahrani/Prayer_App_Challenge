@@ -27,7 +27,6 @@ class _PrayerCalendarState extends State<PrayerCalendar> {
   bool isFavorite = false;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     isFavorite = widget.isFavorite;
   }
