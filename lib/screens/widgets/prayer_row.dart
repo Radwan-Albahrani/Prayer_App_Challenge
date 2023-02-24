@@ -4,11 +4,11 @@ import 'package:intl/intl.dart';
 import '../../models/prayer_times.dart';
 
 class PrayerRow extends StatelessWidget {
-  List<PrayerTimes> prayerTimes;
-  int selected;
-  String prayerName;
-  Color color;
-  PrayerRow(
+  final List<PrayerTimes> prayerTimes;
+  final int selected;
+  final String prayerName;
+  final Color color;
+  const PrayerRow(
       {super.key,
       required this.prayerTimes,
       required this.selected,

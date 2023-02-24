@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:prayer_app/models/prayer_times.dart';
 import 'package:prayer_app/screens/widgets/prayer_row.dart';
 
 class PrayerTimesWidget extends StatelessWidget {
-  List<PrayerTimes> prayerTimes;
-  int selected;
-  PrayerTimesWidget(
+  final List<PrayerTimes> prayerTimes;
+  final int selected;
+  const PrayerTimesWidget(
       {super.key, required this.prayerTimes, required this.selected});
 
   @override

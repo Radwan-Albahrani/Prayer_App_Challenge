@@ -1,7 +1,16 @@
+import 'dart:io';
+
+import 'package:android_id/android_id.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:prayer_app/API/firestore_manager.dart';
+import 'package:prayer_app/screens/favorites_page.dart';
 import 'package:prayer_app/screens/home_page.dart';
-import 'package:prayer_app/screens/search_screen.dart';
+import 'package:prayer_app/screens/search_page.dart';
+
+import '../firebase_options.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -15,9 +24,23 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> myPages = const [
     HomePage(),
     SearchPage(),
-    Text('Favorite', style: TextStyle(fontSize: 40)),
+    FavoritesPage(),
     Text('Dhikr', style: TextStyle(fontSize: 40)),
   ];
+
+  Future initializeFirebase() async {
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
+    FirebaseFirestore.instance;
+    FireStoreManager.addDevice();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initializeFirebase();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

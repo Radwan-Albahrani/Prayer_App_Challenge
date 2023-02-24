@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:prayer_app/API/api_manager.dart';
+import 'package:prayer_app/API/firestore_manager.dart';
 import 'package:prayer_app/models/prayer_times.dart';
 import 'package:prayer_app/screens/widgets/prayer_calendar.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final String address;
+  const SearchPage({super.key, this.address = ""});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -14,6 +15,7 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   var isLoading = false;
   var searchCompleted = false;
+  bool isFavorite = false;
   final ScrollController _controller = ScrollController();
   late List<PrayerTimes> prayerTimes;
   TextEditingController addressForm = TextEditingController();
@@ -38,7 +40,9 @@ class _SearchPageState extends State<SearchPage> {
     // empty the text field
     addressForm.clear();
     // hide the keyboard
-    FocusScope.of(context).unfocus();
+    if (widget.address.isEmpty) {
+      FocusScope.of(context).unfocus();
+    }
     setState(() {
       searchCompleted = false;
       isLoading = true;
@@ -56,6 +60,15 @@ class _SearchPageState extends State<SearchPage> {
         nextPrayer.key == "Midnight") {
       nextPrayer = await apiManager.getNextPrayerTomorrow(city, country);
     }
+
+    var favoritesList = await FireStoreManager.getFavorites();
+    for (Map element in favoritesList) {
+      if (element['city'] == city && element['country'] == country) {
+        setState(() {
+          isFavorite = true;
+        });
+      }
+    }
     setState(() {
       isLoading = false;
       searchCompleted = true;
@@ -66,45 +79,67 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.address.isNotEmpty) {
+      addressForm.text = widget.address;
+      getCalendarByAddress();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Search',
-            style: TextStyle(color: Colors.white, fontSize: 20)),
+        title: widget.address.isEmpty
+            ? const Text('Search',
+                style: TextStyle(color: Colors.white, fontSize: 20))
+            : const Text("Favorites",
+                style: TextStyle(color: Colors.white, fontSize: 20)),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                const Text('Search for a City/Country',
-                    style: TextStyle(color: Colors.black, fontSize: 20)),
-                const SizedBox(height: 20),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Address',
-                  ),
-                  controller: addressForm,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    getCalendarByAddress();
-                  },
-                  child: const Text('Search'),
-                ),
-                !isLoading
-                    ? const Center()
-                    : const Center(
-                        child: CircularProgressIndicator(),
+          widget.address.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      const Text('Search for a City/Country',
+                          style: TextStyle(color: Colors.black, fontSize: 20)),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Address',
+                        ),
+                        controller: addressForm,
                       ),
-              ],
-            ),
-          ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          getCalendarByAddress();
+                        },
+                        child: const Text('Search'),
+                      ),
+                      !isLoading
+                          ? const Center()
+                          : const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                    ],
+                  ),
+                )
+              : !isLoading
+                  ? const Center()
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        SizedBox(height: 20),
+                        CircularProgressIndicator(),
+                      ],
+                    ),
           searchCompleted
               ? Expanded(
                   child: SingleChildScrollView(
@@ -113,6 +148,7 @@ class _SearchPageState extends State<SearchPage> {
                       controller: _controller,
                       city: city,
                       country: country,
+                      isFavorite: isFavorite,
                     ),
                   ),
                 )
