@@ -13,74 +13,11 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  var isLoading = false;
-  var searchCompleted = false;
-  bool isFavorite = false;
-  final ScrollController _controller = ScrollController();
-  late List<PrayerTimes> prayerTimes;
-  TextEditingController addressForm = TextEditingController();
-
-  String? city;
-  String? country;
-
-  void showsnackbar(BuildContext context, String text) {
-    final snackBar = SnackBar(
-      content: Text(text),
-      duration: const Duration(seconds: 1, milliseconds: 500),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
-  void getCalendarByAddress() async {
-    var address = addressForm.text;
-    if (address.isEmpty) {
-      showsnackbar(context, "Please enter an address");
-      return;
-    }
-    // empty the text field
-    addressForm.clear();
-    // hide the keyboard
-    if (widget.address.isEmpty) {
-      FocusScope.of(context).unfocus();
-    }
-    setState(() {
-      searchCompleted = false;
-      isLoading = true;
-    });
-    APIManager apiManager = APIManager();
-    var cityAndCountry = await apiManager.getCityAndCountryByAddress(address);
-    setState(() {
-      city = cityAndCountry[0];
-      country = cityAndCountry[1];
-    });
-    prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
-    var nextPrayer = await apiManager.getNextPrayer(city, country);
-    if (nextPrayer.key == "Firstthird" ||
-        nextPrayer.key == "Lastthird" ||
-        nextPrayer.key == "Midnight") {
-      nextPrayer = await apiManager.getNextPrayerTomorrow(city, country);
-    }
-
-    var favoritesList = await FireStoreManager.getFavorites();
-    for (Map element in favoritesList) {
-      if (element['city'] == city && element['country'] == country) {
-        setState(() {
-          isFavorite = true;
-        });
-      }
-    }
-    setState(() {
-      isLoading = false;
-      searchCompleted = true;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _controller.jumpTo(
-          85 * (DateTime.now().day - 1),
-        ));
-  }
-
+  // =================== Build And Design ===================
   @override
   void initState() {
     super.initState();
+    // If address given in initialization, start searching immediately
     if (widget.address.isNotEmpty) {
       addressForm.text = widget.address;
       getCalendarByAddress();
@@ -156,5 +93,81 @@ class _SearchPageState extends State<SearchPage> {
         ],
       ),
     );
+  }
+
+  // =================== Helper Methods ===================
+  var isLoading = false;
+  var searchCompleted = false;
+  bool isFavorite = false;
+  final ScrollController _controller = ScrollController();
+  late List<PrayerTimes> prayerTimes;
+  TextEditingController addressForm = TextEditingController();
+
+  String? city;
+  String? country;
+
+  // Function to show snackbar if address is empty
+  void showsnackbar(BuildContext context, String text) {
+    final snackBar = SnackBar(
+      content: Text(text),
+      duration: const Duration(seconds: 1, milliseconds: 500),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void getCalendarByAddress() async {
+    // check if the address is empty
+    var address = addressForm.text;
+    if (address.isEmpty) {
+      showsnackbar(context, "Please enter an address");
+      return;
+    }
+    // empty the text field
+    addressForm.clear();
+
+    // hide the keyboard
+    if (widget.address.isEmpty) {
+      FocusScope.of(context).unfocus();
+    }
+
+    // Start loading
+    setState(() {
+      searchCompleted = false;
+      isLoading = true;
+    });
+
+    // get the city and country
+    APIManager apiManager = APIManager();
+    var cityAndCountry = await apiManager.getCityAndCountryByAddress(address);
+
+    // Set them into the state
+    setState(() {
+      city = cityAndCountry[0];
+      country = cityAndCountry[1];
+    });
+
+    // Get the prayer times
+    prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
+
+    // Check if the city is in the favorites list
+    var favoritesList = await FireStoreManager.getFavorites();
+    for (Map element in favoritesList) {
+      if (element['city'] == city && element['country'] == country) {
+        setState(() {
+          isFavorite = true;
+        });
+      }
+    }
+
+    // Finish loading
+    setState(() {
+      isLoading = false;
+      searchCompleted = true;
+    });
+
+    // Scroll to today
+    WidgetsBinding.instance.addPostFrameCallback((_) => _controller.jumpTo(
+          85 * (DateTime.now().day - 1),
+        ));
   }
 }
