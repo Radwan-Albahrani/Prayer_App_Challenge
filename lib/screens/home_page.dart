@@ -53,66 +53,74 @@ class _HomePageState extends State<HomePage>
                         child: CircularProgressIndicator(),
                       )
                     ]
-                  : [
-                      Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.all(16),
-                            child: Text(
-                              "Time Until ${timeUntilNextPrayer.key}",
-                              style: const TextStyle(
+                  : networkError
+                      ? [
+                          const Text('Network Error',
+                              style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.all(16),
-                            child: CircularCountDownTimer(
-                              duration: differenceInSeconds,
-                              timeFormatterFunction: (time, duration) {
-                                // get the hours, minutes, seconds from duration
-                                return timeFormatMethod(duration);
-                              },
-                              width: MediaQuery.of(context).size.width / 4,
-                              height: MediaQuery.of(context).size.width / 4,
-                              ringColor: Colors.grey.shade300,
-                              ringGradient: LinearGradient(colors: [
-                                Colors.grey.shade300,
-                                Colors.grey.shade400,
-                              ]),
-                              fillColor: Colors.indigo,
-                              fillGradient: null,
-                              backgroundColor: Colors.grey.shade800,
-                              backgroundGradient: null,
-                              strokeWidth: 10.0,
-                              strokeCap: StrokeCap.round,
-                              textStyle: const TextStyle(
-                                fontSize: 18.0,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
+                        ]
+                      : [
+                          Column(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.all(16),
+                                child: Text(
+                                  "Time Until ${timeUntilNextPrayer.key}",
+                                  style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
                               ),
-                              textFormat: CountdownTextFormat.S,
-                              isReverse: true,
-                              isReverseAnimation: false,
-                              isTimerTextShown: true,
-                              autoStart: true,
-                              onComplete: () {
-                                AwesomeNotifications().createNotification(
-                                    content: NotificationContent(
-                                        id: 10,
-                                        channelKey: 'basic_channel',
-                                        title: 'Prayer Time',
-                                        body:
-                                            '${timeUntilNextPrayer.key} is now. Please Head to the Mosque!',
-                                        actionType: ActionType.Default));
-                                getCalendar();
-                              },
-                            ),
+                              Container(
+                                margin: const EdgeInsets.all(16),
+                                child: CircularCountDownTimer(
+                                  duration: differenceInSeconds,
+                                  timeFormatterFunction: (time, duration) {
+                                    // get the hours, minutes, seconds from duration
+                                    return timeFormatMethod(duration);
+                                  },
+                                  width: MediaQuery.of(context).size.width / 4,
+                                  height: MediaQuery.of(context).size.width / 4,
+                                  ringColor: Colors.grey.shade300,
+                                  ringGradient: LinearGradient(colors: [
+                                    Colors.grey.shade300,
+                                    Colors.grey.shade400,
+                                  ]),
+                                  fillColor: Colors.indigo,
+                                  fillGradient: null,
+                                  backgroundColor: Colors.grey.shade800,
+                                  backgroundGradient: null,
+                                  strokeWidth: 10.0,
+                                  strokeCap: StrokeCap.round,
+                                  textStyle: const TextStyle(
+                                    fontSize: 18.0,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textFormat: CountdownTextFormat.S,
+                                  isReverse: true,
+                                  isReverseAnimation: false,
+                                  isTimerTextShown: true,
+                                  autoStart: true,
+                                  onComplete: () {
+                                    AwesomeNotifications().createNotification(
+                                        content: NotificationContent(
+                                            id: 10,
+                                            channelKey: 'basic_channel',
+                                            title: 'Prayer Time',
+                                            body:
+                                                '${timeUntilNextPrayer.key} is now. Please Head to the Mosque!',
+                                            actionType: ActionType.Default));
+                                    getCalendar();
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ],
             ),
           ),
         ),
@@ -137,11 +145,15 @@ class _HomePageState extends State<HomePage>
                     isFavorite: isFavorite,
                   ),
                 )
-              : PrayerCalendar(
-                  prayerTimes: prayerTimes,
-                  controller: _controller,
-                  isFavorite: isFavorite,
-                ),
+              : networkError
+                  ? const Center(
+                      child: Text("Network Error"),
+                    )
+                  : PrayerCalendar(
+                      prayerTimes: prayerTimes,
+                      controller: _controller,
+                      isFavorite: isFavorite,
+                    ),
     );
   }
 
@@ -155,6 +167,7 @@ class _HomePageState extends State<HomePage>
   String? city;
   String? country;
   bool isFavorite = false;
+  bool networkError = false;
 
   // Function to get the calendar
   void getCalendar() async {
@@ -165,6 +178,13 @@ class _HomePageState extends State<HomePage>
     // Initialize the API Manager and get the city and country
     APIManager apiManager = APIManager();
     var cityAndCountry = await apiManager.getCityAndCountry();
+    if (cityAndCountry[0] == "" || cityAndCountry[1] == "") {
+      setState(() {
+        networkError = true;
+        isLoading = false;
+      });
+      return;
+    }
 
     // Set the city and country
     setState(() {

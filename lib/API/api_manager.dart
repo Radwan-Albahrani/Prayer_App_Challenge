@@ -226,8 +226,13 @@ class APIManager {
   // Get city and country from the device location
   Future<List<String?>> getCityAndCountry() async {
     Position position = await _determinePosition();
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
+    List<Placemark> placemarks;
+    try {
+      placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+    } catch (e) {
+      return ["", ""];
+    }
     Placemark placemark = placemarks[0];
     String? city = placemark.locality;
     String? country = placemark.country;
