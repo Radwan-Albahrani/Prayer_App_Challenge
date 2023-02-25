@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage>
     with AutomaticKeepAliveClientMixin<HomePage>, WidgetsBindingObserver {
   // =================== Build And Design ===================
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => networkError ? false : true;
 
   @override
   void initState() {
