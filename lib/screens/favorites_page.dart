@@ -11,19 +11,7 @@ class FavoritesPage extends StatefulWidget {
 }
 
 class _FavoritesPageState extends State<FavoritesPage> {
-  var isLoading = false;
-  var favoritesList = [];
-
-  Future getFavorites() async {
-    setState(() {
-      isLoading = true;
-    });
-    favoritesList = await FireStoreManager.getFavorites();
-    setState(() {
-      isLoading = false;
-    });
-  }
-
+  // =================== Build And Design ===================
   @override
   void initState() {
     super.initState();
@@ -70,5 +58,20 @@ class _FavoritesPageState extends State<FavoritesPage> {
               },
             ),
     );
+  }
+
+  // =================== Helper Methods ===================
+  var isLoading = false;
+  var favoritesList = [];
+
+  // Get favorites from Firestore
+  Future getFavorites() async {
+    setState(() {
+      isLoading = true;
+    });
+    favoritesList = await FireStoreManager.getFavorites();
+    setState(() {
+      isLoading = false;
+    });
   }
 }

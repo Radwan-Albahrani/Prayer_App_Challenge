@@ -13,7 +13,11 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  // =================== Build And Design ===================
   var myIndex = 0;
+  late PageController _pageController;
+
+  // List of all pages accessible through the navbar
   List<Widget> myPages = const [
     HomePage(),
     SearchPage(),
@@ -21,15 +25,31 @@ class _MainScreenState extends State<MainScreen> {
     DhikrPage()
   ];
 
+  // Initialize the page controller
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: myIndex);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _pageController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: myPages[myIndex],
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            myIndex = index;
+          });
+        },
+        children: myPages,
+      ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
         child: GNav(
@@ -61,6 +81,9 @@ class _MainScreenState extends State<MainScreen> {
           onTabChange: (index) {
             setState(() {
               myIndex = index;
+              _pageController.animateToPage(myIndex,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeIn);
             });
           },
         ),

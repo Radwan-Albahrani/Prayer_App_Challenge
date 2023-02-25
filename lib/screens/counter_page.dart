@@ -2,6 +2,7 @@ import 'package:animated_flip_counter/animated_flip_counter.dart';
 import 'package:flutter/material.dart';
 import 'package:prayer_app/API/firestore_manager.dart';
 
+// Counter Screen, taking dhikr and current count as a parameter
 class CounterScreen extends StatefulWidget {
   final String dhikr;
   final int currentCount;
@@ -16,8 +17,10 @@ class CounterScreen extends StatefulWidget {
 }
 
 class _CounterScreenState extends State<CounterScreen> {
+  // counter variable
   int counter = 0;
 
+  // Get the current count from the parameters and set it to the counter variable
   @override
   void initState() {
     super.initState();
@@ -26,6 +29,7 @@ class _CounterScreenState extends State<CounterScreen> {
     });
   }
 
+  // =================== Build And Design ===================
   @override
   Widget build(BuildContext context) {
     return Scaffold(

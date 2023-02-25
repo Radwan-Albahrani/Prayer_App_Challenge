@@ -12,20 +12,7 @@ class DhikrPage extends StatefulWidget {
 }
 
 class _DhikrPageState extends ResumableState<DhikrPage> {
-  var isLoading = false;
-
-  var dhikrList;
-
-  Future<void> getDhikr() async {
-    setState(() {
-      isLoading = true;
-    });
-    dhikrList = await FireStoreManager.getDhikrs();
-    setState(() {
-      isLoading = false;
-    });
-  }
-
+  // =================== Build And Design ===================
   @override
   void initState() {
     super.initState();
@@ -112,5 +99,20 @@ class _DhikrPageState extends ResumableState<DhikrPage> {
               ],
             ),
     );
+  }
+
+  // =================== Helper Methods ===================
+  var isLoading = false;
+
+  var dhikrList = [];
+  // Get all dhikr from firestore
+  Future<void> getDhikr() async {
+    setState(() {
+      isLoading = true;
+    });
+    dhikrList = await FireStoreManager.getDhikrs();
+    setState(() {
+      isLoading = false;
+    });
   }
 }
