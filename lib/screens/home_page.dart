@@ -182,14 +182,17 @@ class _HomePageState extends State<HomePage>
       setState(() {
         networkError = true;
         isLoading = false;
+        updateKeepAlive();
       });
       return;
     }
 
     // Set the city and country
     setState(() {
+      networkError = false;
       city = cityAndCountry[0];
       country = cityAndCountry[1];
+      updateKeepAlive();
     });
 
     // Get the prayer times and the next prayer
