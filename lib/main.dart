@@ -28,7 +28,6 @@ class _MyAppState extends State<MyApp> {
   var displayPopup = false;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     checkPermissions();
   }

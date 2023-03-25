@@ -108,6 +108,9 @@ class _HomePageState extends State<HomePage>
                                                 '${timeUntilNextPrayer.key} is now. Please Head to the Mosque!',
                                             actionType: ActionType.Default));
                                     getCalendar();
+                                    setState(() {
+                                      nextPrayerSet = false;
+                                    });
                                   },
                                 ),
                               ),
@@ -128,7 +131,10 @@ class _HomePageState extends State<HomePage>
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : city != null && country != null
+          : (city != null &&
+                  country != null &&
+                  prayerTimes.isNotEmpty &&
+                  !networkError)
               ? SingleChildScrollView(
                   child: PrayerCalendar(
                     prayerTimes: prayerTimes,
@@ -154,13 +160,15 @@ class _HomePageState extends State<HomePage>
   // All necessary Variables
   var isLoading = false;
   final ScrollController _controller = ScrollController();
-  late List<PrayerTimes> prayerTimes;
+  List<PrayerTimes> prayerTimes = [];
   late MapEntry<String, DateTime> timeUntilNextPrayer;
   late int differenceInSeconds;
   String? city;
   String? country;
   bool isFavorite = false;
   bool networkError = false;
+  bool notificationSet = false;
+  bool nextPrayerSet = false;
 
   // Function to get the calendar
   void getCalendar() async {
@@ -172,6 +180,7 @@ class _HomePageState extends State<HomePage>
     APIManager apiManager = APIManager();
     var cityAndCountry = await apiManager.getCityAndCountry();
     if (cityAndCountry[0] == "" || cityAndCountry[1] == "") {
+      debugPrint("Error getting city and country");
       setState(() {
         networkError = true;
         isLoading = false;
@@ -194,6 +203,7 @@ class _HomePageState extends State<HomePage>
       prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
       nextPrayer = await apiManager.getNextPrayer(city, country);
     } catch (e) {
+      debugPrint("Error getting prayer times: $e");
       setState(() {
         networkError = true;
         isLoading = false;
@@ -254,6 +264,7 @@ class _HomePageState extends State<HomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
+    if (notificationSet && !nextPrayerSet) return;
     if (AppLifecycleState.paused == state) {
       // Get the difference in seconds till the next prayer
       var apiManager = APIManager();
@@ -285,6 +296,13 @@ class _HomePageState extends State<HomePage>
                 title: 'Prayer Time',
                 body:
                     '${timeUntilNextPrayer.key} is now. Please Head to the Mosque!'));
+      });
+      setState(() {
+        if (nextPrayerSet == false) {
+          notificationSet = true;
+        } else {
+          notificationSet = false;
+        }
       });
     }
     debugPrint(state.toString());

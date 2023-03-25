@@ -29,7 +29,7 @@ class APIManager {
       if (data['code'] == 400) {
         throw Exception('Invalid city or country');
       } else {
-        throw Exception('Something went wrong');
+        throw Exception('Something went wrong: $data');
       }
     }
   }
