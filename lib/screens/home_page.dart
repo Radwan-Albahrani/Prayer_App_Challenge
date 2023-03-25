@@ -48,7 +48,8 @@ class _HomePageState extends State<HomePage>
                     ]
                   : networkError
                       ? [
-                          const Text('Network Error',
+                          const Text(
+                              'Network Error or API Limit reached. Try again in a couple of minutes.',
                               style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -146,7 +147,9 @@ class _HomePageState extends State<HomePage>
                 )
               : networkError
                   ? const Center(
-                      child: Text("Network Error"),
+                      child: Text(
+                          "Network Error Or API limit reached. Try again in a couple of minutes.",
+                          style: TextStyle(fontSize: 24)),
                     )
                   : PrayerCalendar(
                       prayerTimes: prayerTimes,
@@ -201,7 +204,7 @@ class _HomePageState extends State<HomePage>
     MapEntry<String, DateTime> nextPrayer;
     try {
       prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
-      nextPrayer = await apiManager.getNextPrayer(city, country);
+      nextPrayer = await apiManager.getNextPrayer(city, country, prayerTimes);
     } catch (e) {
       debugPrint("Error getting prayer times: $e");
       setState(() {
@@ -271,7 +274,7 @@ class _HomePageState extends State<HomePage>
       if (city == null || country == null) return;
       MapEntry<String, DateTime> nextPrayer;
       try {
-        nextPrayer = await apiManager.getNextPrayer(city, country);
+        nextPrayer = await apiManager.getNextPrayer(city, country, prayerTimes);
       } catch (e) {
         AwesomeNotifications().createNotification(
             content: NotificationContent(

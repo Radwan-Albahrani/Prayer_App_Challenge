@@ -147,8 +147,18 @@ class _SearchPageState extends State<SearchPage> {
     });
 
     // Get the prayer times
-    prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
-
+    try {
+      prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
+    } catch (e) {
+      Future.delayed(const Duration(seconds: 1), () {
+        showsnackbar(
+            context, "API limit reached, Try again in a couple of Minutes");
+      });
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
     // Check if the city is in the favorites list
     var favoritesList = await FireStoreManager.getFavorites();
     for (Map element in favoritesList) {

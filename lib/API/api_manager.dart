@@ -80,9 +80,10 @@ class APIManager {
   }
 
   // Get the next prayer
-  Future<MapEntry<String, DateTime>> getNextPrayer(city, country) async {
+  Future<MapEntry<String, DateTime>> getNextPrayer(
+      city, country, prayerTimes) async {
     // Get the prayer times
-    var data = await getPrayerTimesByCity(city, country);
+    var data = prayerTimes;
 
     // Get the current date
     final now = DateTime.now();
@@ -128,7 +129,7 @@ class APIManager {
               entry.key == "Lastthird" ||
               entry.key == "Midnight") {
             // if not, get the next prayer tomorrow
-            entry = await _getNextPrayerTomorrow(city, country);
+            entry = await _getNextPrayerTomorrow(city, country, data);
           }
           return entry;
         } catch (e) {
@@ -141,8 +142,8 @@ class APIManager {
 
   // Get the next prayer tomorrow
   Future<MapEntry<String, DateTime>> _getNextPrayerTomorrow(
-      city, country) async {
-    var data = await getPrayerTimesByCity(city, country);
+      city, country, prayerTimes) async {
+    var data = prayerTimes;
     final now = DateTime.now();
 
     final tomorrow = DateTime(now.year, now.month, now.day + 1);
