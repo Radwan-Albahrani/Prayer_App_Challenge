@@ -48,12 +48,22 @@ class _HomePageState extends State<HomePage>
                     ]
                   : networkError
                       ? [
-                          const Text(
-                              'Network Error or API Limit reached. Try again in a couple of minutes.',
-                              style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white)),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(32.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Text(
+                                      'Network Error or API Limit reached. Try again in a couple of minutes.',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white)),
+                                ],
+                              ),
+                            ),
+                          ),
                         ]
                       : [
                           Column(
