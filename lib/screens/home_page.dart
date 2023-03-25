@@ -189,8 +189,18 @@ class _HomePageState extends State<HomePage>
     });
 
     // Get the prayer times and the next prayer
-    prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
-    var nextPrayer = await apiManager.getNextPrayer(city, country);
+    MapEntry<String, DateTime> nextPrayer;
+    try {
+      prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
+      nextPrayer = await apiManager.getNextPrayer(city, country);
+    } catch (e) {
+      setState(() {
+        networkError = true;
+        isLoading = false;
+        updateKeepAlive();
+      });
+      return;
+    }
 
     // Check if the city is a favorite
     var favoritesList = await FireStoreManager.getFavorites();
