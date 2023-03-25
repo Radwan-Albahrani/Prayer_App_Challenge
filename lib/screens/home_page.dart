@@ -119,9 +119,11 @@ class _HomePageState extends State<HomePage>
                                                 '${timeUntilNextPrayer.key} is now. Please Head to the Mosque!',
                                             actionType: ActionType.Default));
                                     getCalendar();
-                                    setState(() {
-                                      nextPrayerSet = false;
-                                    });
+                                    setState(
+                                      () {
+                                        notificationSet = false;
+                                      },
+                                    );
                                   },
                                 ),
                               ),
@@ -181,7 +183,6 @@ class _HomePageState extends State<HomePage>
   bool isFavorite = false;
   bool networkError = false;
   bool notificationSet = false;
-  bool nextPrayerSet = false;
 
   // Function to get the calendar
   void getCalendar() async {
@@ -277,7 +278,7 @@ class _HomePageState extends State<HomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
-    if (notificationSet && !nextPrayerSet) return;
+    if (notificationSet) return;
     if (AppLifecycleState.paused == state) {
       // Get the difference in seconds till the next prayer
       var apiManager = APIManager();
@@ -310,13 +311,11 @@ class _HomePageState extends State<HomePage>
                 body:
                     '${timeUntilNextPrayer.key} is now. Please Head to the Mosque!'));
       });
-      setState(() {
-        if (nextPrayerSet == false) {
+      setState(
+        () {
           notificationSet = true;
-        } else {
-          notificationSet = false;
-        }
-      });
+        },
+      );
     }
     debugPrint(state.toString());
   }
