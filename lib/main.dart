@@ -79,6 +79,13 @@ class _MyAppState extends State<MyApp> {
               channelGroupName: 'Basic group')
         ],
         debug: true);
+
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+        // Ask for permission
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    });
   }
 
   // This widget is the root of your application.

@@ -22,13 +22,6 @@ class _HomePageState extends State<HomePage>
 
   @override
   void initState() {
-    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-        // Ask for permission
-        AwesomeNotifications().requestPermissionToSendNotifications();
-      }
-    });
-
     getCalendar();
     WidgetsBinding.instance.addObserver(this);
     super.initState();
