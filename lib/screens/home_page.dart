@@ -257,7 +257,20 @@ class _HomePageState extends State<HomePage>
     if (AppLifecycleState.paused == state) {
       // Get the difference in seconds till the next prayer
       var apiManager = APIManager();
-      var nextPrayer = await apiManager.getNextPrayer(city, country);
+      if (city == null || country == null) return;
+      MapEntry<String, DateTime> nextPrayer;
+      try {
+        nextPrayer = await apiManager.getNextPrayer(city, country);
+      } catch (e) {
+        AwesomeNotifications().createNotification(
+            content: NotificationContent(
+                id: 10,
+                channelKey: 'basic_channel',
+                title: 'Prayer Time',
+                body:
+                    'An Error Occurred. Please check your internet connection and Reopen the app!'));
+        return;
+      }
       var differenceInSeconds =
           nextPrayer.value.difference(DateTime.now()).inSeconds;
       debugPrint(differenceInSeconds.toString());
