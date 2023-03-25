@@ -116,7 +116,7 @@ class APIManager {
 
         // Loop through the list and add the next prayer to the return list
         listOfTimes.forEach((key, value) {
-          if (value.isAfter(now)) {
+          if (value.isAfter(now) && key != "Sunset") {
             var nextPrayer = key;
             var nextPrayerTime = value;
             returnList.addEntries([MapEntry(nextPrayer, nextPrayerTime)]);
@@ -169,7 +169,7 @@ class APIManager {
         });
         var returnList = <String, DateTime>{};
         listOfTimes.forEach((key, value) {
-          if (value.isAfter(now)) {
+          if (value.isAfter(now) && key != "Sunset") {
             var nextPrayer = key;
             var nextPrayerTime = value;
             returnList.addEntries([MapEntry(nextPrayer, nextPrayerTime)]);

@@ -214,7 +214,9 @@ class _HomePageState extends State<HomePage>
     // Get the prayer times and the next prayer
     MapEntry<String, DateTime> nextPrayer;
     try {
-      prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
+      if (prayerTimes.isEmpty) {
+        prayerTimes = await apiManager.getPrayerTimesByCity(city, country);
+      }
       nextPrayer = await apiManager.getNextPrayer(city, country, prayerTimes);
     } catch (e) {
       debugPrint("Error getting prayer times: $e");
